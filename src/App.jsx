@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 
 
-import Navbar from "./components/NavBar.jsx";
+import Navbar from "./components/Navbar.jsx";
 
 import HomePage from "./pages/HomePage";
 
@@ -16,7 +16,7 @@ import LoginPage from "./pages/LoginPage";
 
 import RegisterPage from "./pages/RegisterPage";
 
-import AdminDashboard from "./pages/AdminDashBoard.jsx";
+import AdminDashboard from "./pages/AdminDashboard.jsx";
 
 import AddProductPage from "./pages/AddProductPage";
 
