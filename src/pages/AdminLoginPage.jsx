@@ -12,48 +12,80 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import API from "../services/api";
 
-function AdminLoginPage(){
+function AdminLoginPage() {
 
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const [username,setUsername] = useState("");
-  const [password,setPassword] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e)=>{
+  const handleLogin = async (e) => {
 
     e.preventDefault();
 
-    try{
+    if (!username || !password) {
+      alert("Please enter username and password");
+      return;
+    }
 
-      const res = await API.post("/auth/login",{
+    try {
+
+      setLoading(true);
+
+      const response = await API.post("/auth/login", {
         email: username,
         password: password
       });
 
-      if(res.data.role !== "ADMIN"){
-        alert("Invalid admin credentials");
+      console.log("Login Response:", response.data);
+
+      // CHECK USER EXISTS
+      if (!response.data) {
+        alert("Login failed");
         return;
       }
 
+      // CHECK ADMIN ROLE
+      if (response.data.role !== "ADMIN") {
+        alert("Access denied. Not an admin account.");
+        return;
+      }
+
+      // STORE ADMIN DATA
       const adminData = {
-        id: res.data.id,
-        name: res.data.name,
-        role: res.data.role
+        id: response.data.id,
+        name: response.data.name,
+        email: response.data.email,
+        role: response.data.role
       };
 
       localStorage.setItem("user", JSON.stringify(adminData));
+
       login(adminData);
+
+      alert("Admin login successful");
 
       navigate("/admin");
 
-    }catch(err){
-      alert("Invalid admin credentials");
+    } catch (error) {
+
+      console.error("Admin Login Error:", error);
+
+      if (error.response) {
+        alert(error.response.data.message || "Invalid admin credentials");
+      } else {
+        alert("Server connection failed");
+      }
+
+    } finally {
+      setLoading(false);
     }
 
-  }
+  };
 
-  return(
+  return (
 
     <Box
       sx={{
@@ -96,11 +128,13 @@ function AdminLoginPage(){
           <form onSubmit={handleLogin}>
 
             <TextField
-              label="Username"
+              label="Admin Email"
+              type="email"
               fullWidth
               margin="normal"
               value={username}
-              onChange={(e)=>setUsername(e.target.value)}
+              onChange={(e) => setUsername(e.target.value)}
+              required
             />
 
             <TextField
@@ -109,13 +143,15 @@ function AdminLoginPage(){
               fullWidth
               margin="normal"
               value={password}
-              onChange={(e)=>setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
+              required
             />
 
             <Button
               variant="contained"
               type="submit"
               fullWidth
+              disabled={loading}
               sx={{
                 mt: 3,
                 py: 1.4,
@@ -124,7 +160,7 @@ function AdminLoginPage(){
                 backgroundColor: "#1976d2"
               }}
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </Button>
 
           </form>
@@ -154,7 +190,7 @@ function AdminLoginPage(){
 
     </Box>
 
-  )
+  );
 
 }
 
