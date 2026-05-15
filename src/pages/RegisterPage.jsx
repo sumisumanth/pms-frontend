@@ -35,8 +35,17 @@ function RegisterPage() {
       navigate("/login");
 
     } catch(error){
-      alert("Registration Failed");
-    }
+
+  console.log(error);
+
+  if(error.response){
+    console.log(error.response.data);
+    alert(error.response.data);
+  }else{
+    alert("Server Error");
+  }
+
+}
 
   };
 
